@@ -16,7 +16,7 @@
 #' @examples
 #' obj_name <- "ptest_unif"
 #' obj <- readRDS("./rds/normalized_outputs/ptest_unif.rds")
-#' rmse_boxplot(obj, obj_name, d=3, nexps=10, start=1, end=3, width=3.5, height=2, is_mch=TRUE)
+#' rmse_boxplot(obj, obj_name, d=3, nexps=30, start=1, end=3, width=3.5, height=2, is_mch=TRUE)
 #'
 rmse_boxplot <- function(obj, plot_name, d, nexps, start, end, width, height, is_mch=FALSE) {
   # obj <- readRDS("18:44:41.rds")

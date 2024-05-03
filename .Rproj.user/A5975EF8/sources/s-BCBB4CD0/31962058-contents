@@ -38,7 +38,8 @@
 #' input_dim <- 7
 #' num_obj <- 11
 #' nexps <- 30
-#' distr <- list(name="unif", n=10)
+#' #distr <- list(name="unif", n=10)
+#' distr <- list(name="norm", n=1000)
 #' SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj,
 #' methods=c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"),
 #' nexps=nexps, is_norm=TRUE, seed = 126, params=NULL)
@@ -48,7 +49,7 @@
 #' input_dim <- 6
 #' num_obj <- 3
 #' nexps <- 30
-#' distr <- list(name="unif", n=1000)
+#' distr <- list(name="norm", n=1000)
 #' SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj,
 #' methods=c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"),
 #' nexps=nexps, is_norm=TRUE, seed = 126, params=NULL)
@@ -58,7 +59,7 @@
 #' input_dim <- 7
 #' num_obj <- 5
 #' nexps <- 30
-#' distr <- list(name="unif", n=1000)
+#' distr <- list(name="norm", n=1000)
 #' params <- list(t=100, returnCST=TRUE)
 #' SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj,
 #' methods=c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"), nexps=nexps,
@@ -68,7 +69,7 @@
 #' fn <- problem_switch_ripple
 #' input_dim <- 8
 #' num_obj <- 5 #if returCST=TRUE, then numb_obj=10
-#' distr <- list(name="unif", n=1000)
+#' distr <- list(name="norm", n=1000)
 #' nexps <- 30
 #' params=list(returnCST = FALSE)
 #' SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj,
@@ -216,8 +217,10 @@ evaluate <- function(Result, nexp, fn, X, grads, distr, Y_norm, num_obj, start_d
 
     cat("executing the method of Zahm... ")
 
+    #start_time <- Sys.time()
     res_zahm <- Zahm(fn, X, distr, grads, num_obj = num_obj, norm_params, num_orth_sample=20, seed=16, params)
-
+    #end_time <- Sys.time()
+    #cat("Zahm runtime:", round(end_time - start_time, 4))
     cat("done\n")
 
   }

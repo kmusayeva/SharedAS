@@ -62,7 +62,10 @@ compute_evectors  <- function(methods, grads, n, m, d) {
 
   evectors <- list()
 
+
   for(method in methods) {
+
+    #start_time <- Sys.time()
 
     evectors[[method]] <- switch(
 
@@ -82,11 +85,19 @@ compute_evectors  <- function(methods, grads, n, m, d) {
 
     )
 
-  }
+    #end_time <- Sys.time()
+
+    #duration <- as.numeric(end_time - start_time, units = "secs")
+
+    #cat("method", method, ", runtime:", round(duration, 4))
+
+     }
+
+
 
   return(evectors)
 
-}
+  }
 
 
 
