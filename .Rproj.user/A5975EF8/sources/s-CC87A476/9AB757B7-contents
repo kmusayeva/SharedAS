@@ -1,0 +1,310 @@
+library(MASS)
+library(ddalpha)
+library(numDeriv)
+library(far)
+library(GPareto)
+library(ggplot2)
+library(copula)
+library(geometry)
+library(activegp)
+library(ks)
+library(kernlab)
+library(factoextra)
+library(FactoMineR)
+library(JADE)
+library(TDA)
+library(geigen)
+library(mvtnorm)
+library(faux)
+library(matrixcalc)
+library(pracma)
+library(stats)
+library(tidyr)
+source("~/RProject/active_subspace/compute_active_subspace.R")
+source("~/RProject/active_subspace/selectA.R")
+source("~/RProject/active_subspace/switch_ripple.R")
+source("~/RProject/active_subspace/Ptest.R")
+source("~/RProject/active_subspace/util_functions.R")
+source("~/RProject/active_subspace/penicillin.R")
+source("~/RProject/active_subspace/min_convex_hull.R")
+source("~/RProject/active_subspace/find_common_vector_gradients.R")
+source("~/RProject/active_subspace/zahm.R")
+source("~/RProject/active_subspace/sum_SPD.R")
+source("~/RProject/active_subspace/diagonalize_SPD.R")
+source("~/RProject/active_subspace/depth.R")
+
+######### Step 1: choose one of the following functions #########
+
+### number of samples
+n <- 1000
+
+### switching ripple
+d <- 8 
+nobj <- d-3
+
+
+### penicillin
+d <- 7
+nobj <- 3 ### including discrete variable t, which is not used in the gradients
+
+
+### Ptest
+d <- 3
+nobj <- 2
+
+
+### the name of the problem {ripple, penicillin, ptest}
+problem <- "ripple"
+
+
+### name of the methods
+methods <- c("Depth", "AG", "MCH", "LP", "SSPD", "SEE", "FG", "Zahm et al.")
+
+
+### number experiments
+nexps <- 10
+
+RR <- matrix(rep(0, nexps*length(methods)), nrow=nexps)
+
+colnames(RR) <- methods
+
+Result <- vector("list", d) ### to save the results
+
+for(i in 1:d) Result[[i]] <- RR ### initialize
+
+
+Sigma <- diag(1, d) ### standard normal
+
+set.seed(123)
+
+for(r in 1:nexps) {
+  
+  data <- rmvnorm(n=n, mean=rep(0,d), sigma=Sigma) ### generate data
+  
+  
+  cat("------------------- sample:", r, "---------------------\n")
+  
+  
+  ##################### Problem 1: PTEST #####################
+  if(problem=="ptest") {
+      fn <- Ptest
+      Y <- fn(data)
+    }
+    
+  ##################### Problem 2: switching ripple #################
+
+  else if (problem=="ripple") {
+  
+      lower <- c(0.000110815602836879, 7.83532027529331e-06, 1.29313391262165e-06, rep(1.29313391262165e-06, d-3))
+    
+      upper <- c(0.000221631205673759, 0.000783532027529331, 0.000783532027529331, rep(6.46566956310825e-05, d-3))
+
+      fn <- switch_ripple_wrapper
+
+      Y <- fn(data)
+    
+      }
+  
+  ##################### Problem 3: penicillin #################
+  
+  else {
+  
+    lower <-c(60, 0.01, 293, 0.01, 0.01, 400, 5)
+    upper <-c(120, 12, 303, 18, 0.5, 600, 7.5)
+    n <- 1000
+    fn <- penicillin_wrapper
+    t <- 100
+    Y <- fn(data, t)
+  
+    ind <- which(Y[,1]==t) ### remove bad values
+    Y <- Y[ind,-1]
+  
+    data <- data[ind,]
+    n <- nrow(data)
+    
+       }
+  
+
+
+  ######### Step 2: Gradient computation
+  grads <- compute_grad(data)
+  
+  if(problem=="penicillin") grads <- grads[,(d+1):ncol(grads)] # exclude the time variable
+  
+  ######################## Step 3: Methods
+
+  # The method of Zahm et al.
+  # Z <- zahm(number_sample=20)
+  
+  
+  ### initialize the list that contains eigenvectors for each method
+  eigen_decomp <- list()
+  
+  ### depth based method
+  Y_kde <- apply(Y, 2, function(x) ks::kde(x))
+
+  Y_pkde <- sapply(col(Y)[1,], function(i){pkde(Y[,i], fhat = Y_kde[[i]])} )
+  
+  Y_depth <- depth.zonoid(Y, Y)
+  
+  depth_grads <- t(apply(Y, 1, function(x) grad(inverse_depth, x)))
+  
+  inverse_depth <- function(y) {
+    
+    res <- do.call(depth.Mahalanobis, list(y, Y))
+    
+    return(1/res)
+    
+   }
+  
+  
+  # eigen_decomp[[1]] <- depth(data, name="depth.zonoid") 
+  # eigen_decomp[[1]] <- depth(data, name="depth.Mahalanobis") 
+  
+  eigen_decomp[[1]] <- depth_project_gradients() 
+  
+
+  # ### average of gradients
+  eigen_decomp[[2]] <- common_vector_grads(grads, n, ncol(Y), d, method="average")
+
+  # ### min convex hull
+  eigen_decomp[[3]] <- common_vector_grads(grads, n, ncol(Y), d, method="mch")
+
+  # #### Linear projection gradients
+  eigen_decomp[[4]] <- common_vector_grads(grads, n, ncol(Y), d, method="lp")
+
+  # #### Sum of SPD 
+  eigen_decomp[[5]] <- sum_SPD()
+
+  # ### Stepwise diagonalization method of Trendafilov
+  eigen_decomp[[6]] <- diagonalizeSPD(method="stepwise")
+
+  # ### Joint diagonalization of Flury-Gautchy
+  eigen_decomp[[7]] <- diagonalizeSPD(method="FG")
+
+ 
+
+  ########################  Step 4: Active subspace computation and evaluation 
+
+  for(i in 1:d) {
+      
+    cat("===d: ", i, " =====\n")
+    
+    # Result[[i]][r,1] <- sum(random_subspace_estimate(ntimes = 5,i))
+
+    # cat("Random subspace error: ", Result[[i]][r,1], "\n")
+    
+    for(k in 2:length(eigen_decomp)) {
+      # for(k in 1:1) {
+      
+      A <-  evaluate_active_subspace(Y,  eigen_decomp[[k]], i)
+      
+      if(problem=="penicillin") {
+      
+      A_err <- rmse(as.matrix(A$Y), as.matrix(A$est))
+      
+      # Result[[i]][r,k] <- sum(A_err)
+      
+      cat(k, ": ", round(A_err,3), ", sum: ", round(sum(A_err),3), "\n")
+      
+      }
+      
+      else {
+      
+      # Result[[i]][r,k] <- sum(A$err)
+
+        cat(k, ": ", round(A$err,3), ", sum: ", round(sum(A$err),3), "\n")
+
+                }
+        
+            }
+    
+    
+      ### Zahm et al.
+    
+     # if(problem=="penicillin") {
+     #  
+     #  ind_Z <- which(Z[,1,i]==t) 
+     # 
+     #  Z_result <- as.matrix(Z[ind_Z,-1,i])
+     #  
+     #  Y_Z <- as.matrix(Y[ind_Z,])
+     #  
+     #  Z_err <- rmse(Y_Z, Z_result)
+     #  
+     #  Result[[i]][r,k+1] <- sum(Z_err) 
+     #  
+     #       }
+     # 
+     #  else {
+     #    
+     #    Z_err <- rmse(as.matrix(Y[,]), as.matrix(Z[,,i]))
+     #    
+     #    Result[[i]][r,k+1] <- sum(Z_err)
+     #    
+     #    cat(i, ": ", Z_err, ", sum: ", Result[[i]][r,k+1], "\n")
+     # 
+     #        }
+          
+      # cat(i, ": ", rmse(as.matrix(Y), as.matrix(Z[,,i])), ", sum: ", Result[[i]][r,k+1], "\n")
+    
+           }
+  
+      }
+
+
+# pdf(file = paste0("~/RProject/active_subspace/pics/penicilin_vs_co2.pdf"), width = 7, height = 7)
+# plot(Y[,2],Y[,1], col="black", cex=0.8, ylab="Penicillin concentration", xlab="Carbon dioxide concentration")
+# dev.off()
+
+
+########################  Step 5: Save the results
+# saveRDS(Result, paste0("~/RProject/active_subspace/",deparse(substitute(fn)),".rds"))
+saveRDS(Result, paste0("~/RProject/active_subspace/ptest_10_exp.rds"))
+
+### Reads the saved object
+obj <- readRDS("~/RProject/active_subspace/penicilin_two_objectives.rds")
+tmp <- Result
+for(i in 1:length(obj)) obj[[i]][,1] <- tmp[[i]][,1]
+
+########################  Step 6:  Boxplotting and saving to a file
+pdf(file = paste0("~/RProject/active_subspace/figures/penicilin_two_objectives_3_dim.pdf"), width = 6, height = 3)
+
+# Q <- cbind(rep(4:(d-1), times=rep(nexps, (d-4))), do.call(rbind, Result[c(4:(d-1))]))
+
+
+# if(problem=="ptest") {Q <- cbind(rep(1:d, times=rep(nexps, d)), do.call(rbind, Result[c(1:d)]))
+# } else Q <- cbind(rep(6:d, times=rep(nexps, d-5)), do.call(rbind, obj[c(6:d)]))
+
+d <- 7
+Q <- cbind(rep(5:d, times=rep(nexps, d-4)), do.call(rbind, obj[c(5:d)]))
+# Q <- cbind(rep(1:d, times=rep(nexps, d)), do.call(rbind, obj[c(1:d)]))
+
+Q <- Q[,-c(2)]
+
+methods <- c("AG", "MCH", "LP", "SSPD", "SEE", "FG", "Zahm")
+
+# methods <- c("AG", "LP", "SSPD", "SEE", "FG", "Zahm et al.")
+
+colnames(Q) <- c("d", methods)
+
+df <- as.data.frame(Q)
+
+### change the format
+melted_df <- pivot_longer(df, cols = -d, names_to = "Methods", values_to = "Value")
+
+melted_df$Methods <- factor(melted_df$Methods, levels = methods)
+
+
+gp <- ggplot(melted_df, aes(x = factor(d), y = Value)) +
+  geom_boxplot(aes(fill = Methods), lwd=0.1, outlier.size = 0.01, width=0.8) +
+  labs(x = "d", y = "Sum of RMSE")+
+   scale_fill_manual(values = c("magenta", "orange", "green", "yellow", "red", "grey", "blue", "cyan"))
+
+gp+theme_minimal()+theme(legend.position = c(0.85, 0.7), legend.key.size = unit(0.5, 'cm'),legend.text = element_text(size=5),axis.title=element_text(size=7),axis.text = element_text(size = 6), legend.title = element_blank())
+
+# gp+ theme(legend.position = c(0.5, 0.5), axis.title=element_text(size=20), legend.text = element_text(size=20),legend.title = element_blank())
+#+ylim(0,1)
+
+dev.off()
+

@@ -1,0 +1,39 @@
+find_min_norm_point <- function(P) {
+  recurse <- function(P, current_point=NULL) {
+    # Base case: If P contains a single point, return it
+    if(nrow(P) == 1) {
+      return(P[1, ])
+    }
+    
+    # If current_point is not given, use the point from P with the minimum norm as the starting point
+    if(is.null(current_point)) {
+      current_point <- P[which.min( sqrt(rowSums(P^2))), ]
+    }
+    
+    # Step 1 & 2: Determine subset Pk
+    distances <- as.matrix(P) %*% current_point
+    min_distance <- min(distances)
+    Pk <- P[distances == min_distance, , drop = FALSE]
+    
+    # Step 3: Recursive call with Pk
+    if(nrow(Pk) < nrow(P)) {
+      new_point <- recurse(Pk, current_point)
+    } else {
+      # If Pk equals P, or no progress can be made, return the current point
+      return(current_point)
+    }
+    
+    # Step 4: Update current_point if new_point has a smaller norm
+    if(sqrt(sum(new_point^2)) < sqrt(sum(current_point^2))) {
+      return(recurse(P, new_point))
+    } 
+    
+    else return(current_point)
+
+  }
+  
+  # Start the recursive process without an initial current_point
+  return(recurse(P))
+}
+
+
