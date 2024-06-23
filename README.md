@@ -6,7 +6,7 @@ SharedAS is an R package that computes a shared active subspace for multi-variat
 
 - **Version**: 0.1.0
 - **Author**: Khadija Musayeva, Mickael Binois
-- **Maintainer**: The package maintainer Khadija Musayeva <khmusayeva@gmail.com>
+- **Maintainer**: Khadija Musayeva <khmusayeva@gmail.com>
 - **License**: GPLv2
 
 ## Installation
