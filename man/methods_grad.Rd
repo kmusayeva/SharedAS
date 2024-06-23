@@ -43,9 +43,9 @@ Computes representative vectors for the Jacobians evaluated at data points and r
 fn <- problem_car_side_impact
 d <- 7
 n <- 1000
-X <- matrix(runif(d*n), n)
+X <- matrix(runif(d * n), n)
 Y <- t(apply(X, 1, fn))
 grads <- t(apply(X, 1, function(x) c(t(numDeriv::jacobian(fn, x = x)))))
-methods_grad(grads, n, ncol(Y), d, method="MCH")
+methods_grad(grads, n, ncol(Y), d, method = "MCH")
 
 }

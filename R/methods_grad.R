@@ -22,38 +22,34 @@
 #' fn <- problem_car_side_impact
 #' d <- 7
 #' n <- 1000
-#' X <- matrix(runif(d*n), n)
+#' X <- matrix(runif(d * n), n)
 #' Y <- t(apply(X, 1, fn))
 #' grads <- t(apply(X, 1, function(x) c(t(numDeriv::jacobian(fn, x = x)))))
-#' methods_grad(grads, n, ncol(Y), d, method="MCH")
+#' methods_grad(grads, n, ncol(Y), d, method = "MCH")
 #'
-methods_grad <- function(grads, n, m, d, method = c('AG','LP','MCH'), is_grad_norm = FALSE) {
+methods_grad <- function(grads, n, m, d, method = c("AG", "LP", "MCH"), is_grad_norm = FALSE) {
+  out <- matrix(0, nrow = n, ncol = d)
 
-  out <- matrix(0, nrow=n, ncol=d)
+  if (method == "LP") {
+    out <- project_gradients(grads, n, m, d)
+  } else {
+    for (i in 1:n) {
+      J <- matrix(grads[i, ], ncol = d, byrow = T)
 
-  if(method=='LP') out <- project_gradients(grads, n, m, d)
+      if (is_grad_norm) J <- J / (sqrt(rowSums(J^2)))
 
-  else {
-
-    for(i in 1:n) {
-
-      J <- matrix(grads[i,], ncol=d, byrow=T)
-
-      if(is_grad_norm) J <- J/(sqrt(rowSums(J^2)))
-
-      if(method=='MCH') out[i,] <- min_convex_hull(J)
-
-      else out[i,] <- colSums(J)/m
-
-        }
-
-     }
+      if (method == "MCH") {
+        out[i, ] <- min_convex_hull(J)
+      } else {
+        out[i, ] <- colSums(J) / m
+      }
+    }
+  }
 
 
-  C <- (t(out) %*% out)/n
+  C <- (t(out) %*% out) / n
 
   return(eigen(C)$vectors)
-
 }
 
 
@@ -68,27 +64,23 @@ methods_grad <- function(grads, n, m, d, method = c('AG','LP','MCH'), is_grad_no
 #' @noRd
 #' @return Matrix  of projected gradients
 project_gradients <- function(grads, n, m, d) {
-
-  projected_grads <- matrix(0, nrow=n, ncol=d)
+  projected_grads <- matrix(0, nrow = n, ncol = d)
 
   P <- list()
 
-  for(i in 1:d) {
+  for (i in 1:d) {
+    P[[i]] <- matrix(0, ncol = m, nrow = n)
 
-    P[[i]] <- matrix(0, ncol=m, nrow=n )
+    for (j in 1:m) {
+      P[[i]][, j] <- grads[, ((j - 1) * d + i)]
+    }
 
-    for(j in 1:m) {P[[i]][,j] <- grads[,((j-1)*d+i)]}
-
-    P_dim <- t(P[[i]]) %*% P[[i]]/n
+    P_dim <- t(P[[i]]) %*% P[[i]] / n
 
     e <- eigen(P_dim)
 
-    projected_grads[,i] <- P[[i]] %*% e$vectors[,1]
-
+    projected_grads[, i] <- P[[i]] %*% e$vectors[, 1]
   }
 
   return(projected_grads)
-
 }
-
-

@@ -23,37 +23,37 @@
 #' fn <- problem_car_side_impact
 #' d <- 7
 #' n <- 1000
-#' X <- matrix(runif(d*n), n)
+#' X <- matrix(runif(d * n), n)
 #' Y <- t(apply(X, 1, fn))
 #' grads <- t(apply(X, 1, function(x) c(t(numDeriv::jacobian(fn, x = x)))))
-#' methods_SPD(grads, n, ncol(Y), d, method="FG")
+#' methods_SPD(grads, n, ncol(Y), d, method = "FG")
 #'
-methods_SPD <- function(grads, n, m, d, method=c('SSPD', 'SEE', 'FG')) {
+methods_SPD <- function(grads, n, m, d, method = c("SSPD", "SEE", "FG")) {
+  if (!method %in% c("SSPD", "SEE", "FG")) {
+    stop(cat("Possible choices: 'SSPD', 'SEE' or 'FG'\n"))
+  }
 
-    if(!method %in% c('SSPD', 'SEE', 'FG')) {stop(cat("Possible choices: 'SSPD', 'SEE' or 'FG'\n"))}
 
+  if (method == "SSPD") {
+    return(sumSPD(grads, n, m, d))
+  }
 
-    if(method=="SSPD") return(sumSPD(grads, n, m, d))
+  S <- array(NA, c(d, d, m))
 
-    S <- array(NA, c(d, d, m))
+  for (i in 1:m) {
+    g <- grads[, ((i - 1) * d + 1):(i * d)]
 
-    for(i in 1:m) {
+    S[, , i] <- (t(g) %*% g / n) + diag(1e-12, d)
+  }
 
-      g <- grads[,((i-1)*d+1):(i*d)]
+  if (method == "FG") {
+    FG_res <- FG(covmats = S, nvec = rep(n, m), method = "LS") ### it can also be ML, but LS gave better results
+  } else {
+    FG_res <- stepwisecpc(covmats = S, nvec = rep(n, m))
+  }
 
-      S[, , i] <- (t(g) %*% g/n) + diag(1e-12, d)
-
-         }
-
-    if(method=="FG") {
-
-      FG_res <- FG(covmats = S, nvec = rep(n, m), method = 'LS') ### it can also be ML, but LS gave better results
-
-      } else  FG_res <- stepwisecpc(covmats = S, nvec = rep(n, m))
-
-    return(FG_res$B)
-
-      }
+  return(FG_res$B)
+}
 
 
 
@@ -67,17 +67,13 @@ methods_SPD <- function(grads, n, m, d, method=c('SSPD', 'SEE', 'FG')) {
 #' @noRd
 #' @return Matrix of eigenvectors
 sumSPD <- function(grads, n, m, d) {
+  S <- matrix(0, nrow = d, ncol = d)
 
-  S <- matrix(0, nrow=d, ncol=d)
+  for (i in 1:m) {
+    g <- grads[, ((i - 1) * d + 1):(i * d)]
 
-  for(i in 1:m) {
-
-    g <- grads[,((i-1)*d+1):(i*d)]
-
-    S <- S + t(g) %*% g/n
-
+    S <- S + t(g) %*% g / n
   }
 
   return(eigen(S)$vectors)
-
-  }
+}

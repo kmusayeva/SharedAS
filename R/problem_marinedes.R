@@ -19,12 +19,11 @@
 #' @examples
 #' d <- 6
 #' n <- 1000
-#' X <- matrix(runif(d*n), n)
+#' X <- matrix(runif(d * n), n)
 #' Y <- t(apply(X, 1, problem_marinedes))
 #'
 #' pairs(Y[, 1:3])
 problem_marinedes <- function(x, params = list(constraints = FALSE)) {
-
   lower <- c(150, 20, 13, 10, 14, 0.63)
   upper <- c(274.32, 32.31, 25, 11.71, 18, 0.75)
 
@@ -46,13 +45,13 @@ problem_marinedes <- function(x, params = list(constraints = FALSE)) {
   a <- (4977.06 * x_CB * x_CB) - (8105.61 * x_CB) + 4456.51
   b <- (-10847.2 * x_CB * x_CB) + (12817.0 * x_CB) - 6960.32
 
-  power_pb <- (displacement^(2.0/3.0) * x_Vk^3.0) / (a + (b * Fn))
+  power_pb <- (displacement^(2.0 / 3.0) * x_Vk^3.0) / (a + (b * Fn))
   outfit_weight <- 1.0 * x_L^0.8 * x_B^0.6 * x_D^0.3 * x_CB^0.1
   steel_weight <- 0.034 * x_L^1.7 * x_B^0.7 * x_D^0.4 * x_CB^0.5
   machinery_weight <- 0.17 * power_pb^0.9
   light_ship_weight <- steel_weight + outfit_weight + machinery_weight
 
-  ship_cost <- 1.3 * ((2000.0 * steel_weight^0.85)  + (3500.0 * outfit_weight) + (2400.0 * power_pb^0.8))
+  ship_cost <- 1.3 * ((2000.0 * steel_weight^0.85) + (3500.0 * outfit_weight) + (2400.0 * power_pb^0.8))
   capital_costs <- 0.2 * ship_cost
 
   DWT <- displacement - light_ship_weight
@@ -69,7 +68,7 @@ problem_marinedes <- function(x, params = list(constraints = FALSE)) {
   port_cost <- 6.3 * DWT^0.8
 
   fuel_carried <- daily_consumption * (sea_days + 5.0)
-  miscellaneous_DWT = 2.0 * DWT^0.5
+  miscellaneous_DWT <- 2.0 * DWT^0.5
 
   cargo_DWT <- DWT - fuel_carried - miscellaneous_DWT
   port_days <- 2.0 * ((cargo_DWT / handling_rate) + 0.5)
@@ -98,12 +97,11 @@ problem_marinedes <- function(x, params = list(constraints = FALSE)) {
   KG <- 1.0 + 0.52 * x_D
   g[9] <- (KB + BMT - KG) - (0.07 * x_B)
 
-  if(params$constraints){
+  if (params$constraints) {
     return(c(f, g))
   } else {
     cstv <- sum(pmax(-g, 0))
     # return(c(f, cstv))
     return(f)
   }
-
 }

@@ -11,10 +11,9 @@
 #' @export
 #' @references
 #' Liang, Q. and L. Lai (2021). Scalable bayesian optimization accelerates process optimization of penicillin production. In NeurIPS 2021 AI for Science Workshop.
-problem_penicillin <- function(input, params=list(t=100, returnCST=FALSE)) {
-
-  lower <-c(60, 0.01, 293, 0.01, 0.01, 400, 5)
-  upper <-c(120, 12, 303, 18, 0.5, 600, 7.5)
+problem_penicillin <- function(input, params = list(t = 100, returnCST = FALSE)) {
+  lower <- c(60, 0.01, 293, 0.01, 0.01, 400, 5)
+  upper <- c(120, 12, 303, 18, 0.5, 600, 7.5)
 
   input <- input * (upper - lower) + lower
 
@@ -68,7 +67,6 @@ problem_penicillin <- function(input, params=list(t=100, returnCST=FALSE)) {
 
 
   for (i in 1:t) {
-
     F_loss <- V * lambd * (exp(5 * ((T_ - T_o) / (T_v - T_o))) - 1)
 
     dV_dt <- F_ - F_loss
@@ -79,7 +77,7 @@ problem_penicillin <- function(input, params=list(t=100, returnCST=FALSE)) {
 
     mu_pp <- mu_p * (S / (K_p + S + S^2 / K_I))
 
-    dS_dt <- - (mu / Y_xs) * X - (mu_pp / Y_ps) * X - m_X * X + F_ * s_f / V - (S / V) * dV_dt
+    dS_dt <- -(mu / Y_xs) * X - (mu_pp / Y_ps) * X - m_X * X + F_ * s_f / V - (S / V) * dV_dt
 
     dP_dt <- (mu_pp * X) - p_K * P - (P / V) * dV_dt
 
@@ -107,12 +105,11 @@ problem_penicillin <- function(input, params=list(t=100, returnCST=FALSE)) {
       # print("Converged P")
       break
     }
-
   }
 
-  if(params$returnCST) return(c(l_t, P, CO2, V, X, S))
+  if (params$returnCST) {
+    return(c(l_t, P, CO2, V, X, S))
+  }
 
   return(c(l_t, P, CO2))
-
-  }
-
+}

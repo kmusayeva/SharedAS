@@ -2,11 +2,11 @@ Package: SharedAS
 Type: Package
 Title: Shared active subspace for multi-variate vector-valued functions
 Version: 0.1.0
-Author: Author1, Author2
-Maintainer: The package maintainer <author@email.com>
+Author: Khadija Musayeva, Mickael Binois
+Maintainer: The package maintainer Khadija Musayeva <khmusayeva@gmail.com>
 Description: Implements several baseline methods to compute a shared active subspace for multi-variate vector-valued functions. It also provides the implementation of the method of Zahm, O., P. G. Constantine, C. Prieur, and Y. M. Marzouk (2020). Gradient-based dimension reduction of multivariate vector-valued functions. SIAM Journal on Scientific Computing 42 (1), A534–A558.
-License: GPLv2
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: cpc, geigen, ggplot2, mvtnorm, numDeriv, pracma, RRembo, stats, tidyr, dplyr, alphahull
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1

@@ -18,5 +18,3 @@
 #' @import grDevices
 
 NULL
-
-

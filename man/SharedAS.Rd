@@ -75,52 +75,63 @@ Depending on the problem, the method of MCH can be costly to compute.
 fn <- problem_car_side_impact
 input_dim <- 7
 num_obj <- 11
-nexps <- 3
-distr <- list(name="norm", n=1000, sigma = diag(3, input_dim))
-SharedAS(fn=fn, distr=distr, start_dim=1, end_dim=5, input_dim=input_dim, num_obj=num_obj,
-methods=c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"),
-nexps=nexps, is_norm=TRUE, seed = 126, params=NULL)
+nexps <- 5
+# distr <- list(name="unif", n=10)
+distr <- list(name = "norm", n = 1000)
+SharedAS(
+  fn = fn, distr = distr, input_dim = input_dim, num_obj = num_obj,
+  methods = c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"),
+  nexps = nexps, is_norm = TRUE, seed = 126, params = NULL
+)
 
 
 fn <- problem_marinedes
 input_dim <- 6
 num_obj <- 3
-nexps <- 5
-distr <- list(name="unif", n=1000)
-SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj,
-methods=c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"),
-nexps=nexps, is_norm=TRUE, seed = 126, params=NULL)
-
-
-fn <- problem_synthetic
-input_dim <- 3
-num_obj <- 2
-nexps <- 5
-distr <- list(name="norm", n=1000, sigma = diag(3, input_dim))
-SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj,
-methods=c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"),
-nexps=nexps, is_norm=FALSE)
-
-
-fn <- problem_switch_ripple
-input_dim <- 8
-num_obj <- 10
-distr <- list(name="norm", n=1000, sigma=diag(1,input_dim))
-nexps <- 10
-params=list(returnCST = TRUE)
-SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj,
-methods=c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"), nexps=nexps,
-is_norm=TRUE, seed = 126, params=params)
+nexps <- 1
+distr <- list(name = "norm", n = 1000)
+SharedAS(
+  fn = fn, distr = distr, input_dim = input_dim, num_obj = num_obj,
+  methods = c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"),
+  nexps = nexps, is_norm = TRUE, seed = 126, params = NULL
+)
 
 
 fn <- problem_penicillin
 input_dim <- 7
 num_obj <- 5
-nexps <- 5
-distr <- list(name="norm", n=1000, sigma=diag(1,input_dim))
-params <- list(t=100, returnCST=TRUE)
-SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj, methods=c("AG", "LP"),
-nexps=nexps, is_norm=FALSE, params=params)
+nexps <- 1
+distr <- list(name = "norm", n = 1000)
+params <- list(t = 100, returnCST = TRUE)
+SharedAS(
+  fn = fn, distr = distr, input_dim = input_dim, num_obj = num_obj,
+  methods = c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"), nexps = nexps,
+  is_norm = TRUE, seed = 126, params = params
+)
 
+
+fn <- problem_switch_ripple
+input_dim <- 8
+num_obj <- 5 # if returCST=TRUE, then numb_obj=10
+distr <- list(name = "norm", n = 1000)
+nexps <- 1
+params <- list(returnCST = FALSE)
+SharedAS(
+  fn = fn, distr = distr, input_dim = input_dim, num_obj = num_obj,
+  methods = c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"), nexps = nexps,
+  is_norm = TRUE, seed = 126, params = params
+)
+
+
+fn <- problem_synthetic
+input_dim <- 3
+num_obj <- 2
+nexps <- 30
+distr <- list(name = "unif", n = 1000)
+SharedAS(
+  fn = fn, distr = distr, input_dim = input_dim, num_obj = num_obj,
+  methods = c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"), nexps = nexps,
+  is_norm = TRUE, seed = 126
+)
 
 }

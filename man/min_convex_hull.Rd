@@ -16,9 +16,8 @@ Vector representing the minimum L2-norm point of the convex hull of \code{P}
 A recursive algorithm to compute the minimum L2-norm point in a polytope.
 }
 \examples{
-X <- matrix(runif(3*10), 10)
+X <- matrix(runif(3 * 10), 10)
 min_convex_hull(X)
-
 }
 \references{
 Sekitani, K. and Y. Yamamoto (1993). A recursive algorithm for finding the minimum

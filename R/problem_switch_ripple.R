@@ -18,10 +18,9 @@
 #' \item{ He, C., Tian, Y., Wang, H., & Jin, Y. (2019). A repository of real-world datasets for data-driven evolutionary multiobjective optimization. Complex & Intelligent Systems, 1-9.}
 #' }
 #'
-problem_switch_ripple <- function(x, params=list(returnCST = FALSE)) {
-
-  lower <- c(0.000110815602836879, 7.83532027529331e-06, 1.29313391262165e-06, rep(1.29313391262165e-06, length(x)-3))
-  upper <- c(0.000221631205673759, 0.000783532027529331, 0.000783532027529331, rep(6.46566956310825e-05, length(x)-3))
+problem_switch_ripple <- function(x, params = list(returnCST = FALSE)) {
+  lower <- c(0.000110815602836879, 7.83532027529331e-06, 1.29313391262165e-06, rep(1.29313391262165e-06, length(x) - 3))
+  upper <- c(0.000221631205673759, 0.000783532027529331, 0.000783532027529331, rep(6.46566956310825e-05, length(x) - 3))
 
   x <- x * (upper - lower) + lower
   d <- length(x) # number of variables
@@ -36,25 +35,23 @@ problem_switch_ripple <- function(x, params=list(returnCST = FALSE)) {
   omegasw <- 32000 * pi
   Iref <- 141
   Rlk <- rep(0.005, nr)
-  Rb <- Ell^2/Prated
+  Rb <- Ell^2 / Prated
 
   L1 <- x[1]
   L2 <- x[2]
   L3 <- x[3]
-  Ck <- x[4:(d-1)]
+  Ck <- x[4:(d - 1)]
   Cf <- x[d]
 
   Lk <- 1 / (Ck * (1:nr * omegasw)^2)
 
-  GLC <- function(s){
-
-    res <- (L2*s * (L3 * Cf * s^2 + 1) + L3 * s) / (Lk * s + Rlk + 1 / (Ck * s))
+  GLC <- function(s) {
+    res <- (L2 * s * (L3 * Cf * s^2 + 1) + L3 * s) / (Lk * s + Rlk + 1 / (Ck * s))
 
     sum(res)
-
   }
 
-  G <- function(s){
+  G <- function(s) {
     1 / (L1 * s * GLC(s) + L2 * s * (L3 * Cf * s^2 + 1) + L3 * s)
   }
 
@@ -64,9 +61,8 @@ problem_switch_ripple <- function(x, params=list(returnCST = FALSE)) {
 
   fM <- L1 + L2 + L3 + sum(Lk)
 
-  if(params$returnCST){
-
-    g1 <- sum(Ck) + Cf - 0.05/(Rb * omega0)
+  if (params$returnCST) {
+    g1 <- sum(Ck) + Cf - 0.05 / (Rb * omega0)
 
     g2 <- L1 + L2 + L3 - 0.1 * Rb / omega0
 
@@ -75,19 +71,12 @@ problem_switch_ripple <- function(x, params=list(returnCST = FALSE)) {
 
     g4 <- L2 + L3 - L1
 
-    g51 <- omegasw/2 - sqrt((L1 + L2 + L3) / (L1 * (L2 + L3) * (sum(Ck) + Cf)))
+    g51 <- omegasw / 2 - sqrt((L1 + L2 + L3) / (L1 * (L2 + L3) * (sum(Ck) + Cf)))
 
-    g52 <- sqrt((L1 + L2 + L3)/(L1 * (L2 + L3) * (sum(Ck) + Cf))) - 3*omegasw / 4
+    g52 <- sqrt((L1 + L2 + L3) / (L1 * (L2 + L3) * (sum(Ck) + Cf))) - 3 * omegasw / 4
 
     return(c(fs, fM, g1, g2, g4, g51, g52))
-
-    }
-
-  else {
-
+  } else {
     return(c(fs, fM))
-
-    }
-
+  }
 }
-

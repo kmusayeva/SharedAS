@@ -1,4 +1,58 @@
-.Rproj.user
+# History files
 .Rhistory
+.Rapp.history
+
+# Session Data files
 .RData
+
+# User-specific files
 .Ruserdata
+
+# RStudio files
+.Rproj.user/
+*.Rproj
+
+# R Packages
+.Rbuildignore
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+*.old
+
+# Logs and databases
+*.log
+*.sqlite
+
+# Compiled source
+*.out
+*.o
+*.so
+*.dll
+
+# Documentation
+*.pdf
+
+# Static files
+*.rds
+
+# Knitted documents
+*.nb.html
+
+# Shiny application logs
+*.shinyapp/
+
+# Results of R CMD build
+/*.tar.gz
+
+# Output files from R Markdown
+*_cache/
+*_files/
+
+# Quarto files
+.quarto/
+
+# Project files
+.Rproj
+

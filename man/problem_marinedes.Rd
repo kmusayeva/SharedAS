@@ -27,7 +27,7 @@ Adapted from Tanabe, R., & Ishibuchi, H. (2020). An easy-to-use real-world multi
 \examples{
 d <- 6
 n <- 1000
-X <- matrix(runif(d*n), n)
+X <- matrix(runif(d * n), n)
 Y <- t(apply(X, 1, problem_marinedes))
 
 pairs(Y[, 1:3])

@@ -37,62 +37,71 @@
 #' fn <- problem_car_side_impact
 #' input_dim <- 7
 #' num_obj <- 11
-#' nexps <- 30
-#' #distr <- list(name="unif", n=10)
-#' distr <- list(name="norm", n=1000)
-#' SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj,
-#' methods=c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"),
-#' nexps=nexps, is_norm=TRUE, seed = 126, params=NULL)
+#' nexps <- 5
+#' # distr <- list(name="unif", n=10)
+#' distr <- list(name = "norm", n = 1000)
+#' SharedAS(
+#'   fn = fn, distr = distr, input_dim = input_dim, num_obj = num_obj,
+#'   methods = c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"),
+#'   nexps = nexps, is_norm = TRUE, seed = 126, params = NULL
+#' )
 #'
 #'
 #' fn <- problem_marinedes
 #' input_dim <- 6
 #' num_obj <- 3
 #' nexps <- 1
-#' distr <- list(name="norm", n=1000)
-#' SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj,
-#' methods=c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"),
-#' nexps=nexps, is_norm=TRUE, seed = 126, params=NULL)
+#' distr <- list(name = "norm", n = 1000)
+#' SharedAS(
+#'   fn = fn, distr = distr, input_dim = input_dim, num_obj = num_obj,
+#'   methods = c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"),
+#'   nexps = nexps, is_norm = TRUE, seed = 126, params = NULL
+#' )
 #'
 #'
 #' fn <- problem_penicillin
 #' input_dim <- 7
 #' num_obj <- 5
 #' nexps <- 1
-#' distr <- list(name="norm", n=1000)
-#' params <- list(t=100, returnCST=TRUE)
-#' SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj,
-#' methods=c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"), nexps=nexps,
-#' is_norm=TRUE, seed = 126, params=params)
+#' distr <- list(name = "norm", n = 1000)
+#' params <- list(t = 100, returnCST = TRUE)
+#' SharedAS(
+#'   fn = fn, distr = distr, input_dim = input_dim, num_obj = num_obj,
+#'   methods = c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"), nexps = nexps,
+#'   is_norm = TRUE, seed = 126, params = params
+#' )
 #'
 #'
 #' fn <- problem_switch_ripple
 #' input_dim <- 8
-#' num_obj <- 5 #if returCST=TRUE, then numb_obj=10
-#' distr <- list(name="norm", n=1000)
+#' num_obj <- 5 # if returCST=TRUE, then numb_obj=10
+#' distr <- list(name = "norm", n = 1000)
 #' nexps <- 1
-#' params=list(returnCST = FALSE)
-#' SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj,
-#' methods=c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"), nexps=nexps,
-#' is_norm=TRUE, seed = 126, params=params)
+#' params <- list(returnCST = FALSE)
+#' SharedAS(
+#'   fn = fn, distr = distr, input_dim = input_dim, num_obj = num_obj,
+#'   methods = c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"), nexps = nexps,
+#'   is_norm = TRUE, seed = 126, params = params
+#' )
 #'
 #'
 #' fn <- problem_synthetic
 #' input_dim <- 3
 #' num_obj <- 2
 #' nexps <- 30
-#' distr <- list(name="unif", n=1000)
-#' SharedAS(fn=fn, distr=distr, input_dim=input_dim, num_obj=num_obj,
-#' methods=c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"), nexps=nexps,
-#' is_norm=TRUE, seed = 126)
+#' distr <- list(name = "unif", n = 1000)
+#' SharedAS(
+#'   fn = fn, distr = distr, input_dim = input_dim, num_obj = num_obj,
+#'   methods = c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm"), nexps = nexps,
+#'   is_norm = TRUE, seed = 126
+#' )
 #'
-SharedAS <- function(fn, grads=NULL, X=NULL, distr=list(name="norm", n=1000), input_dim, num_obj, start_dim=NULL, end_dim=NULL, methods=NULL, nexps=1, is_norm=TRUE, seed = 126, params=NULL) {
-
+SharedAS <- function(fn, grads = NULL, X = NULL, distr = list(name = "norm", n = 1000), input_dim, num_obj, start_dim = NULL, end_dim = NULL, methods = NULL, nexps = 1, is_norm = TRUE, seed = 126, params = NULL) {
   all_methods <- c("AG", "LP", "MCH", "SSPD", "SEE", "FG", "Zahm")
 
-  if(is.null(methods))  methods <- all_methods
-
-  else if(sum(!methods %in% all_methods)) stop(cat("Possible choices: ", all_methods,"\n"))
+  if (is.null(methods)) {
+    methods <- all_methods
+  } else if (sum(!methods %in% all_methods)) stop(cat("Possible choices: ", all_methods, "\n"))
 
   # if(distr$name=="unif" && "Zahm" %in% methods) {
   #
@@ -104,9 +113,9 @@ SharedAS <- function(fn, grads=NULL, X=NULL, distr=list(name="norm", n=1000), in
   #
   #   }
 
-  if(!is.null(grads) && is.null(X)) stop("Please specify the X matrix.")
+  if (!is.null(grads) && is.null(X)) stop("Please specify the X matrix.")
 
-  if (!distr$name %in% c("norm","unif")) stop("Possible choice for distribution: 'norm' or 'unif'.")
+  if (!distr$name %in% c("norm", "unif")) stop("Possible choice for distribution: 'norm' or 'unif'.")
 
   if (is.null(distr$n)) stop("Please specify the number of samples.")
 
@@ -114,23 +123,22 @@ SharedAS <- function(fn, grads=NULL, X=NULL, distr=list(name="norm", n=1000), in
 
   if (is.null(num_obj)) stop("Please specify the number of function outputs.")
 
-  if(distr$name=="norm" && is.null(distr$sigma)) distr$sigma=diag(1,input_dim)
+  if (distr$name == "norm" && is.null(distr$sigma)) distr$sigma <- diag(1, input_dim)
 
-  if(!is.null(grads) && !is.null(X)) nexps <- 1
+  if (!is.null(grads) && !is.null(X)) nexps <- 1
 
-  if(is.null(start_dim)) start_dim <- 1
+  if (is.null(start_dim)) start_dim <- 1
 
-  if(is.null(end_dim)) end_dim <- input_dim
+  if (is.null(end_dim)) end_dim <- input_dim
 
-  if(end_dim<start_dim || end_dim>input_dim) stop("Start or end dimension is incorrect.")
+  if (end_dim < start_dim || end_dim > input_dim) stop("Start or end dimension is incorrect.")
 
-  Result = compute(fn, grads, X, input_dim, num_obj, distr, methods, nexps, is_norm, params, start_dim, end_dim, seed)
+  Result <- compute(fn, grads, X, input_dim, num_obj, distr, methods, nexps, is_norm, params, start_dim, end_dim, seed)
 
   # print(Result)
 
   saveRDS(Result, paste0(format(Sys.time(), "%X"), ".rds"))
-
-  }
+}
 
 
 #' Computes the eigenspace, rotates the data and evaluates the test function
@@ -149,46 +157,47 @@ SharedAS <- function(fn, grads=NULL, X=NULL, distr=list(name="norm", n=1000), in
 #' @return Matrix of RMSEs and their sum for each experiment, dimension and method
 #' @noRd
 compute <- function(fn, grads, X_given, input_dim, num_obj, distr, methods, nexps, is_norm, params, start_dim, end_dim, seed) {
-
   which_distr <- distr$name
 
   Result <- create_Result_matrix(start_dim, end_dim, num_obj, nexps, methods)
 
   set.seed(seed)
 
-  for(nexp in 1:nexps) {
+  for (nexp in 1:nexps) {
+    cat("Sample: ", nexp, "\n")
 
-      cat("Sample: ", nexp, "\n")
+    # data part
+    dat <- handle_data(fn, X_given, input_dim, num_obj, distr, params)
 
-      #data part
-      dat <- handle_data(fn, X_given, input_dim, num_obj, distr, params)
+    X <- dat$X
+    d <- ncol(X)
+    Y <- dat$Y
+    Y_norm <- dat$Y_norm
+    num_obj <- dat$num_obj
+    n <- nrow(X)
 
-      X <- dat$X; d <- ncol(X); Y <- dat$Y; Y_norm <- dat$Y_norm; num_obj <- dat$num_obj; n <- nrow(X)
+    norm_params <- dat$norm_params
 
-      norm_params <- dat$norm_params
+    # grads part
+    cat("computing gradients...")
 
-      #grads part
-      cat("computing gradients...")
+    grads1 <- if (is.null(grads)) handle_grads(fn, X, which_distr, is_norm, norm_params, params) else grads
 
-      grads1 <- if(is.null(grads)) handle_grads(fn, X, which_distr, is_norm, norm_params, params) else grads
+    cat("done \n")
 
-      cat("done \n")
+    # eigenspace part
+    cat("computing eigenspaces... ")
 
-      #eigenspace part
-      cat("computing eigenspaces... ")
+    evectors <- compute_evectors(methods, grads1, n, num_obj, d)
 
-      evectors <- compute_evectors(methods, grads1, n, num_obj, d)
+    cat("done\n")
 
-      cat("done\n")
-
-      #evaluation part
-      Result <- evaluate(Result, nexp, fn, X, grads1, distr, Y_norm, num_obj, start_dim, end_dim, evectors, norm_params, params)
-
-        }
+    # evaluation part
+    Result <- evaluate(Result, nexp, fn, X, grads1, distr, Y_norm, num_obj, start_dim, end_dim, evectors, norm_params, params)
+  }
 
   return(Result)
-
-  }
+}
 
 
 
@@ -211,57 +220,38 @@ compute <- function(fn, grads, X_given, input_dim, num_obj, distr, methods, nexp
 #' @return Matrix of rmses and their sum for each dimension and for each method
 #' @noRd
 evaluate <- function(Result, nexp, fn, X, grads, distr, Y_norm, num_obj, start_dim, end_dim, evectors, norm_params, params) {
-
-  #if specified, execute the method of Zahm
-  if(length(Result$Zahm))  {
-
+  # if specified, execute the method of Zahm
+  if (length(Result$Zahm)) {
     cat("executing the method of Zahm... ")
 
-    #start_time <- Sys.time()
-    res_zahm <- Zahm(fn, X, distr, grads, num_obj = num_obj, norm_params, num_orth_sample=20, seed=16, params)
-    #end_time <- Sys.time()
-    #cat("Zahm runtime:", round(end_time - start_time, 4))
+    # start_time <- Sys.time()
+    res_zahm <- Zahm(fn, X, distr, grads, num_obj = num_obj, norm_params, num_orth_sample = 20, seed = 16, params)
+    # end_time <- Sys.time()
+    # cat("Zahm runtime:", round(end_time - start_time, 4))
     cat("done\n")
-
   }
 
   cat("evaluating... ")
 
-  for(num_dim in start_dim : end_dim) {
-
-    if(length(evectors)) {
-
-      for(ei in 1:length(evectors)) {
-
+  for (num_dim in start_dim:end_dim) {
+    if (length(evectors)) {
+      for (ei in 1:length(evectors)) {
         res <- project_and_estimate(evectors[[ei]], fn, X, num_dim, which_distr = distr$name, norm_params, params)
 
-        rmses <-rmse_wrapper(Y_norm, res$Yest, params)
+        rmses <- rmse_wrapper(Y_norm, res$Yest, params)
 
-        Result[[names(evectors[ei])]][[num_dim]][nexp,] <- rmses
+        Result[[names(evectors[ei])]][[num_dim]][nexp, ] <- rmses
+      }
+    }
 
-          }
-
-        }
-
-    if(length(Result$Zahm)) {
-
+    if (length(Result$Zahm)) {
       rmses <- rmse_wrapper(Y_norm, res_zahm[[num_dim]], params)
 
-      Result$Zahm[[num_dim]][nexp,] <- rmses
-
-        }
-
+      Result$Zahm[[num_dim]][nexp, ] <- rmses
+    }
   }
 
 
   cat("done\n")
   return(Result)
-
-  }
-
-
-
-
-
-
-
+}

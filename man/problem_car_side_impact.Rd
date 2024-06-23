@@ -41,7 +41,7 @@ Car side-impact problem
 \examples{
 d <- 7
 n <- 1000
-X <- matrix(runif(d*n), n)
+X <- matrix(runif(d * n), n)
 Y <- t(apply(X, 1, problem_car_side_impact))
 
 pairs(Y)

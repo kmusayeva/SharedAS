@@ -32,10 +32,10 @@ Returns the matrix of eigenvectors computed from the stepwise estimation of eige
 fn <- problem_car_side_impact
 d <- 7
 n <- 1000
-X <- matrix(runif(d*n), n)
+X <- matrix(runif(d * n), n)
 Y <- t(apply(X, 1, fn))
 grads <- t(apply(X, 1, function(x) c(t(numDeriv::jacobian(fn, x = x)))))
-methods_SPD(grads, n, ncol(Y), d, method="FG")
+methods_SPD(grads, n, ncol(Y), d, method = "FG")
 
 }
 \references{
