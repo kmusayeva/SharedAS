@@ -10,4 +10,4 @@ SharedAS is an R package that computes a shared active subspace for multi-variat
 - **License**: GPLv2
 
 ## Installation
-Change the directory to SharedAS. Run install_sharedas.R
+Change the directory to SharedAS source directory. Run install_sharedas.R
